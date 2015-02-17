@@ -1,0 +1,8 @@
+Package: bptools
+Title: Bi-partite network analysis tools
+Version: 0.1
+Authors@R: "Daniel Schlauch <dschlauch@fas.harvard.edu> [aut, cre]"
+Description: This package provides a set of tools for the analysis of bipartite networks, specifically designed to work with the output from the PANDA package.
+Depends: tidyr, dplyr, ggplot2, reshape2, ggdendro, grid, hyperSpec, R (>= 3.1.2)
+License: What license is it under?
+LazyData: true
