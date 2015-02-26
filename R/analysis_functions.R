@@ -1,7 +1,7 @@
 #' Bi-partite network analysis tools
 #'
-#' This function analyzes a bi-partite network, such as a Transcription factor to gene network derived from the PANDA algorithm. 
-#' 
+#' This function analyzes a bi-partite network, such as a Transcription factor to gene network derived from the PANDA algorithm.
+#'
 #' @param net1 starting network, a genes by transcription factors data.frame with scores for confidence in the existence of edges between
 #' @param net2 final network, a genes by transcription factors data.frame with scores for confidence in the existence of edges between
 #' @keywords keywords
@@ -10,7 +10,6 @@
 #' data(yeast.panda)
 #' t.matrix <- transformation.matrix(yeast.panda$cell.cycle, yeast.panda$stress.response)
 #' hcl.heatmap.plot(t.matrix, method="pearson")
-
 transformation.matrix <- function(network.1, network.2, by.genes=F,standardize=T, remove.diagonal=T){
   if(is.list(network.1)&&is.list(network.2)){
     if(by.genes){
@@ -48,13 +47,13 @@ transformation.matrix <- function(network.1, network.2, by.genes=F,standardize=T
 }
 
 #' Sum of squared off-diagonal mass
-#' 
+#'
 #' This function calculates the off-diagonal sum of squared mass for a transition matrix
 #'
 #' @param tm a transition matrix for two bipartite networks
 #' @keywords keywords
 #' @export
-#' @examples 
+#' @examples
 #' data(yeast.panda)
 #' t.matrix <- transformation.matrix(yeast.panda$cell.cycle, yeast.panda$stress.response)
 #' ssodm(t.matrix)
@@ -64,7 +63,7 @@ ssodm <-  function(tm){
 }
 
 #' Transformation matrix plot
-#' 
+#'
 #' This function plots a hierachically clustered heatmap and corresponding dendrogram of a transaction matrix
 #'
 #' @param net1 starting network, a genes by transcription factors data.frame with scores for confidence in the existence of edges between
@@ -85,10 +84,10 @@ hcl.heatmap.plot <- function(x, method="pearson"){
   x <- scale(x)
   dd.col <- as.dendrogram(hclust(dist.func(x)))
   col.ord <- order.dendrogram(dd.col)
-  
+
   dd.row <- as.dendrogram(hclust(dist.func(t(x))))
   row.ord <- order.dendrogram(dd.row)
-  
+
   xx <- x[col.ord, row.ord]
   xx_names <- attr(xx, "dimnames")
   df <- as.data.frame(xx)
@@ -96,11 +95,11 @@ hcl.heatmap.plot <- function(x, method="pearson"){
   df$Var1 <- xx_names[[1]]
   df$Var1 <- with(df, factor(Var1, levels=Var1, ordered=TRUE))
   mdf <- melt(df)
-  
-  
+
+
   ddata_x <- dendro_data(dd.row)
   ddata_y <- dendro_data(dd.col)
-  
+
   ### Set up a blank theme
   theme_none <- theme(
     panel.grid.major = element_blank(),
@@ -125,23 +124,23 @@ hcl.heatmap.plot <- function(x, method="pearson"){
     axis.line = element_blank()
     #axis.ticks.length = element_blank()
   )
-  ### Create plot components ###    
+  ### Create plot components ###
   # Heatmap
-  p1 <- ggplot(mdf, aes(x=variable, y=Var1)) + 
+  p1 <- ggplot(mdf, aes(x=variable, y=Var1)) +
     geom_tile(aes(fill=value)) + scale_fill_gradient2() + theme(axis.text.x = element_text(angle = 90, hjust = 1))
-  
+
   # Dendrogram 1
-  p2 <- ggplot(segment(ddata_x)) + 
-    geom_segment(aes(x=x, y=y, xend=xend, yend=yend)) + 
+  p2 <- ggplot(segment(ddata_x)) +
+    geom_segment(aes(x=x, y=y, xend=xend, yend=yend)) +
     theme_none + theme(axis.title.x=element_blank())
-  
+
   # Dendrogram 2
-  p3 <- ggplot(segment(ddata_y)) + 
-    geom_segment(aes(x=x, y=y, xend=xend, yend=yend)) + 
+  p3 <- ggplot(segment(ddata_y)) +
+    geom_segment(aes(x=x, y=y, xend=xend, yend=yend)) +
     coord_flip() + theme_none
-  
+
   ### Draw graphic ###
-  
+
   grid.newpage()
   print(p1, vp=viewport(0.80, 0.8, x=0.400, y=0.40))
   print(p2, vp=viewport(0.73, 0.2, x=0.395, y=0.90))
@@ -149,7 +148,7 @@ hcl.heatmap.plot <- function(x, method="pearson"){
 }
 
 #' Principal Components plot of transformation matrix
-#' 
+#'
 #' This function plots the first two principal components for a transaction matrix
 #'
 #' @param tm a transition matrix for a bipartite network
@@ -198,7 +197,7 @@ ssodm.plot <- function(tm.obs, tm.null, sort.by.sig=F, rescale=F, plot.title=NA,
   null.ssodm.matrix <- t(apply(null.ssodm.matrix,1,sort))
 
   ssodm <- apply(tm.obs,1,function(x){t(x)%*%x})
-  
+
   # Get p-value (rank of observed within null ssodm)
 #   p.values <- sapply(1:length(ssodm),function(i){
 #     1-findInterval(ssodm[i], null.ssodm.matrix[i,])/num.iterations
@@ -210,8 +209,8 @@ ssodm.plot <- function(tm.obs, tm.null, sort.by.sig=F, rescale=F, plot.title=NA,
 # Process the data for ggplot2
   combined.mat <- cbind(null.ssodm.matrix, ssodm)
   colnames(combined.mat) <- c(rep('Null',num.iterations),"Observed")
-  
-  
+
+
   if (rescale){
     combined.mat <- t(apply(combined.mat,1,function(x){
       (x-mean(x[-(num.iterations+1)]))/sd(x[-(num.iterations+1)])
@@ -222,22 +221,22 @@ ssodm.plot <- function(tm.obs, tm.null, sort.by.sig=F, rescale=F, plot.title=NA,
     x.axis.order <- rownames(tm.null[[1]])
     x.axis.size  <- pmin(15,7-log(p.values))
   }
-  
+
   null.SSODM.melt <- melt(combined.mat)[,-1][,c(2,1)]
   null.SSODM.melt$TF<-rep(rownames(tm.null[[1]]),num.iterations+1)
-  
+
   ## Plot the data
-  ggplot(null.SSODM.melt, aes(x=TF, y=value))+ 
-    geom_point(aes(size=1,color=factor(Var2),alpha = .5*as.numeric(factor(Var2)))) + 
+  ggplot(null.SSODM.melt, aes(x=TF, y=value))+
+    geom_point(aes(size=1,color=factor(Var2),alpha = .5*as.numeric(factor(Var2)))) +
     scale_color_manual(values = c("blue", "red")) +
     scale_x_discrete(limits = x.axis.order ) +
-    theme(legend.title=element_blank(),axis.text.x = element_text(colour = 1+x.axis.order%in%highlight.tfs, angle = 90, hjust = 1, size=x.axis.size,face="bold")) + 
+    theme(legend.title=element_blank(),axis.text.x = element_text(colour = 1+x.axis.order%in%highlight.tfs, angle = 90, hjust = 1, size=x.axis.size,face="bold")) +
     ylab("Sum of Squared Off-Diagonal Mass") +
     ggtitle(plot.title)
 }
 
 #' Calculate p-values for a tranformation matrix
-#' 
+#'
 #' This function calculates the significance of an observed transition matrix given a set of null transition matrices
 #'
 #' @param tm.obs The observed transition matrix
@@ -255,9 +254,9 @@ calculate.tm.p.values <- function(tm.obs, tm.null, method="z-score"){
   })
   null.ssodm.matrix <- matrix(unlist(null.SSODM),ncol=num.iterations)
   null.ssodm.matrix <- t(apply(null.ssodm.matrix,1,sort))
-  
+
   ssodm <- apply(tm.obs,1,function(x){t(x)%*%x})
-  
+
   # Get p-value (rank of observed within null ssodm)
   if(method=="non-parametric"){
     p.values <- sapply(1:length(ssodm),function(i){
@@ -286,7 +285,7 @@ load.null.tms <- function(dir.path, keyword="sub1"){
   null.networks.list <- split(lapply(file.path(dir.path,perm.filenames), function(x){
     file.to.regnet(x)
   }),grepl(keyword, perm.filenames))
-  
+
   # Calculate the transition matrices between those "null" networks
   tm.null <- lapply(1:length(null.networks.list[[1]]), function(x){
     transformation.matrix(null.networks.list[[1]][[x]], null.networks.list[[2]][[x]])
